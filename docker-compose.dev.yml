@@ -1,0 +1,62 @@
+services:
+  school_management_db:
+    image: postgres:15
+    container_name: school_management_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # এখানে Named Volume ব্যবহার করা হয়েছে
+    env_file:
+      - ./.env.dev
+    networks:
+      - school_management_network
+
+  school_management_backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+      network: host
+    container_name: school_management_backend
+    volumes:
+      - ./backend:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env.dev
+    environment:
+      - PORT=8000
+    depends_on:
+      - school_management_db
+    networks:
+      - school_management_network
+
+  school_management_frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+      network: host
+    container_name: school_management_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env.dev
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    depends_on:
+      - school_management_backend
+    networks:
+      - school_management_network
+
+networks:
+  school_management_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

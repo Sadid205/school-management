@@ -1,0 +1,531 @@
+openapi: 3.0.3
+info:
+  title: Your API Name
+  version: 1.0.0
+  description: Your API Description
+paths:
+  /api/v1/accounts/auth/forgot-password/resend/otp:
+    post:
+      operationId: accounts_auth_forgot_password_resend_otp_create
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendForgotPasswordOtp'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResendForgotPasswordOtp'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResendForgotPasswordOtp'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/accounts/auth/login:
+    post:
+      operationId: accounts_auth_login_create
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/accounts/auth/login/otp/verify:
+    post:
+      operationId: accounts_auth_login_otp_verify_create
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyLoginOTP'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyLoginOTP'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyLoginOTP'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/accounts/auth/login/resend/otp:
+    post:
+      operationId: accounts_auth_login_resend_otp_create
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendLoginOtp'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResendLoginOtp'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResendLoginOtp'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/accounts/auth/logout:
+    post:
+      operationId: accounts_auth_logout_create
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/accounts/auth/password/reset:
+    post:
+      operationId: accounts_auth_password_reset_create
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTP'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTP'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTP'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/accounts/auth/password/reset/otp/verify:
+    post:
+      operationId: accounts_auth_password_reset_otp_verify_create
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTPConfirm'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTPConfirm'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTPConfirm'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/accounts/auth/register:
+    post:
+      operationId: accounts_auth_register_create
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/accounts/auth/register/otp/verify:
+    post:
+      operationId: accounts_auth_register_otp_verify_create
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRegisterOTP'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyRegisterOTP'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyRegisterOTP'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/accounts/auth/resend/otp:
+    post:
+      operationId: accounts_auth_resend_otp_create
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendOtp'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResendOtp'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResendOtp'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+components:
+  schemas:
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+    PasswordResetOTP:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    PasswordResetOTPConfirm:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        otp:
+          type: string
+          maxLength: 6
+        new_password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - new_password
+      - otp
+    Register:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Unique username for login
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          description: |-
+            User role determines permissions
+
+            * `student` - Student
+            * `teacher` - Teacher
+            * `parent` - Parent
+            * `admin` - Admin
+            * `super_admin` - Super Admin
+        email:
+          type: string
+          format: email
+          description: Email address used for authentication
+          maxLength: 255
+        password1:
+          type: string
+          writeOnly: true
+        password2:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - first_name
+      - last_name
+      - password1
+      - password2
+      - role
+      - username
+    ResendForgotPasswordOtp:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    ResendLoginOtp:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    ResendOtp:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    RoleEnum:
+      enum:
+      - student
+      - teacher
+      - parent
+      - admin
+      - super_admin
+      type: string
+      description: |-
+        * `student` - Student
+        * `teacher` - Teacher
+        * `parent` - Parent
+        * `admin` - Admin
+        * `super_admin` - Super Admin
+    VerifyLoginOTP:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        otp:
+          type: string
+          maxLength: 6
+      required:
+      - email
+      - otp
+    VerifyRegisterOTP:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        otp:
+          type: string
+          maxLength: 6
+      required:
+      - email
+      - otp
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

@@ -1,0 +1,30 @@
+Phase 1: Auth Pages (Complete)
+├── ✅ 01-12 (Already done)
+
+Phase 2: Dashboard Layout 
+├── 13_app/dashboard/layout.tsx
+├── 14_components/dashboard/sidebar.tsx  
+├── 15_components/dashboard/topbar.tsx
+
+Phase 3: Dashboard Home
+├── 16_app/dashboard/page.tsx
+
+Phase 4: Students Management (CRUD UI)
+├── 17_app/dashboard/students/page.tsx
+├── 18_app/dashboard/students/add/page.tsx
+├── 19_app/dashboard/students/[id]/page.tsx
+
+Phase 5: Attendance Management (Calendar + Table)
+├── 20_app/dashboard/attendance/mark/page.tsx
+├── 21_app/dashboard/attendance/reports/page.tsx
+
+Phase 6: Purchases Management (From your AddPurchases.tsx)
+├── 22_app/dashboard/purchases/page.tsx
+├── 23_components/forms/purchase-form.tsx
+
+Phase 7: Additional Pages
+├── 24_app/dashboard/courses/page.tsx
+├── 25_app/dashboard/exams/page.tsx
+├── 26_app/dashboard/finance/fees/page.tsx
+├── 27_app/dashboard/profile/page.tsx
+├── 28_app/dashboard/settings/page.tsx

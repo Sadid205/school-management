@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0f1f3d;
+  --navy-mid: #1a3260;
+  --navy-light: #2b4b8c;
+  --amber: #f5a623;
+  --amber-light: #ffc85a;
+  --amber-pale: #fff7e6;
+  --white: #ffffff;
+  --gray-50: #f8f9fc;
+  --gray-100: #eef1f7;
+  --gray-200: #e2e8f0;
+  --gray-300: #c5ccda;
+  --gray-500: #8892a4;
+  --gray-700: #4a5568;
+  --success: #1d9e75;
+  --danger: #e24b4a;
+  --warning: #f5a623;
+  --info: #185fa5;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--gray-50);
+  min-height: 100vh;
+}
