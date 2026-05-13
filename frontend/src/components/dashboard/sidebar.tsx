@@ -1,168 +1,222 @@
 "use client";
 
-import { useAppDispatch } from "@/hooks/redux-hooks";
-import { useLogoutMutation } from "@/store/api/authApi";
-import { logout } from "@/store/authSlice";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
+import { useEffect } from "react";
 import {
   Award,
-  BarChart, // instead of BarChart3
+  BarChart2,
   Bell,
-  Book, // instead of BookOpen
-  Calendar, // instead of CalendarCheck
+  BookOpen,
+  Calendar,
   ChevronLeft,
   ChevronRight,
   CreditCard,
-  File, // instead of GraduationCap (or use 'Book')
-  Layout, // instead of LayoutDashboard
+  Home,
   LogOut,
+  PieChart,
   Settings,
-  ShoppingBag, // instead of ShoppingCart
-  User, // instead of UserCircle
+  ShoppingCart,
+  User,
   Users,
+  X,
 } from "react-feather";
-import toast from "react-hot-toast";
 
 interface SidebarProps {
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
+  isMobile: boolean;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-const menuItems = [
-  {
-    section: "MAIN",
-    items: [
-      { label: "Dashboard", icon: Layout, href: "/dashboard" },
-      { label: "Students", icon: Users, href: "/dashboard/students" },
-      { label: "Teachers", icon: Award, href: "/dashboard/teachers" },
-      {
-        label: "Attendance",
-        icon: Calendar,
-        href: "/dashboard/attendance/mark",
-      },
-    ],
-  },
-  {
-    section: "ACADEMIC",
-    items: [
-      { label: "Courses", icon: Book, href: "/dashboard/courses" },
-      { label: "Exams", icon: File, href: "/dashboard/exams" },
-      { label: "Results", icon: BarChart, href: "/dashboard/results" },
-      { label: "Assignments", icon: File, href: "/dashboard/assignments" },
-    ],
-  },
-  {
-    section: "FINANCE",
-    items: [
-      { label: "Purchases", icon: ShoppingBag, href: "/dashboard/purchases" },
-      { label: "Fees", icon: CreditCard, href: "/dashboard/finance/fees" },
-      { label: "Inventory", icon: ShoppingBag, href: "/dashboard/inventory" },
-    ],
-  },
-  {
-    section: "SYSTEM",
-    items: [
-      { label: "Reports", icon: BarChart, href: "/dashboard/reports" },
-      { label: "Notifications", icon: Bell, href: "/dashboard/notifications" },
-      { label: "Profile", icon: User, href: "/dashboard/profile" },
-      { label: "Settings", icon: Settings, href: "/dashboard/settings" },
-    ],
-  },
-];
-
-export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
+export default function Sidebar({
+  collapsed,
+  setCollapsed,
+  isMobile,
+  isOpen,
+  onClose,
+}: SidebarProps) {
   const pathname = usePathname();
-  const dispatch = useAppDispatch();
-  const [logoutApi] = useLogoutMutation();
 
-  const handleLogout = async () => {
-    try {
-      await logoutApi().unwrap();
-      dispatch(logout());
-      toast.success("Logged out successfully");
-      window.location.href = "/login";
-    } catch (error) {
-      dispatch(logout());
-      window.location.href = "/login";
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMobile, isOpen]);
+
+  const menuItems = [
+    { label: "Dashboard", icon: Home, href: "/" },
+    { label: "Students", icon: Users, href: "/students" },
+    { label: "Teachers", icon: Award, href: "/teachers" },
+    { label: "Attendance", icon: Calendar, href: "/attendance/mark" },
+    { label: "Courses", icon: BookOpen, href: "/courses" },
+    { label: "Purchases", icon: ShoppingCart, href: "/purchases" },
+    { label: "Finance", icon: CreditCard, href: "/finance" },
+    { label: "Reports", icon: BarChart2, href: "/reports" },
+    { label: "Analytics", icon: PieChart, href: "/analytics" },
+    { label: "Notifications", icon: Bell, href: "/notifications", badge: 3 },
+    { label: "Profile", icon: User, href: "/profile" },
+    { label: "Settings", icon: Settings, href: "/settings" },
+  ];
+
+  const isActive = (href: string) => {
+    return pathname === href || pathname?.startsWith(href + "/");
+  };
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      onClose();
     }
   };
 
-  return (
-    <aside
-      className={`bg-navy text-white transition-all duration-300 flex flex-col ${
-        collapsed ? "w-[70px]" : "w-[260px]"
-      }`}
-    >
-      {/* Logo Area */}
-      <div className="relative p-4 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center text-lg font-bold rounded-lg w-9 h-9 bg-amber text-navy">
-            E
-          </div>
-          {!collapsed && (
-            <div>
-              <div className="font-bold text-white">EduNest</div>
-              <div className="text-amber text-[10px] tracking-wider">
-                School Management
-              </div>
-            </div>
-          )}
-        </div>
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="absolute flex items-center justify-center w-6 h-6 text-white transition-colors -translate-y-1/2 border-2 rounded-full -right-3 top-1/2 bg-navy-mid border-navy-light hover:bg-amber"
-        >
-          {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
-        </button>
-      </div>
+  // For mobile: don't render anything if not open
+  if (isMobile && !isOpen) {
+    return null;
+  }
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 overflow-y-auto">
-        {menuItems.map((section, idx) => (
-          <div key={idx} className="mb-4">
-            {!collapsed && (
-              <div className="text-[10px] tracking-wider text-white/30 px-3 py-2">
-                {section.section}
+  return (
+    <>
+      {/* Mobile Overlay */}
+      {isMobile && isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={`
+          bg-navy text-white transition-all duration-300 flex flex-col h-full
+          ${
+            isMobile
+              ? "fixed top-0 left-0 z-50 w-[260px] shadow-2xl"
+              : collapsed
+                ? "w-[70px]"
+                : "w-[260px]"
+          }
+        `}
+      >
+        {/* Logo Area */}
+        <div className="relative p-4 border-b shrink-0 border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center text-lg font-bold rounded-lg shrink-0 w-9 h-9 bg-amber text-navy">
+              E
+            </div>
+            {(!isMobile || !collapsed) && (
+              <div className="overflow-hidden">
+                <div className="font-bold text-white whitespace-nowrap">
+                  EduNest
+                </div>
+                <div className="text-[10px] tracking-wider text-amber uppercase whitespace-nowrap">
+                  School Management
+                </div>
               </div>
             )}
-            {section.items.map((item) => {
-              const isActive = pathname === item.href;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-all ${
-                    isActive
+          </div>
+
+          {/* Desktop Collapse Button */}
+          {!isMobile && (
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="absolute z-10 flex items-center justify-center w-6 h-6 transition-colors -translate-y-1/2 border-2 rounded-full top-1/2 -right-3 bg-navy-mid border-navy-light hover:bg-amber hover:text-navy"
+            >
+              {collapsed ? (
+                <ChevronRight size={12} />
+              ) : (
+                <ChevronLeft size={12} />
+              )}
+            </button>
+          )}
+
+          {/* Mobile Close Button */}
+          {isMobile && (
+            <button
+              onClick={onClose}
+              className="absolute z-10 flex items-center justify-center w-6 h-6 transition-colors -translate-y-1/2 rounded-full shadow-md top-1/2 -right-2 bg-amber text-navy hover:bg-amber-light"
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={handleLinkClick}
+                className={`
+                  flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-all
+                  ${
+                    active
                       ? "bg-amber/15 text-amber"
                       : "text-white/70 hover:bg-white/10 hover:text-white"
-                  } ${collapsed ? "justify-center" : ""}`}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <Icon size={18} />
-                  {!collapsed && <span className="text-sm">{item.label}</span>}
-                </Link>
-              );
-            })}
-          </div>
-        ))}
-      </nav>
+                  }
+                  ${collapsed && !isMobile ? "justify-center" : ""}
+                `}
+                title={collapsed && !isMobile ? item.label : undefined}
+              >
+                <Icon size={18} className="shrink-0" />
+                {(!collapsed || isMobile) && (
+                  <>
+                    <span className="flex-1 text-sm text-left">
+                      {item.label}
+                    </span>
+                    {item.badge && (
+                      <span className="px-1.5 py-0.5 text-xs text-white rounded-full shrink-0 bg-red-500">
+                        {item.badge}
+                      </span>
+                    )}
+                  </>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
 
-      {/* Footer */}
-      <div className="p-3 border-t border-white/10">
-        <button
-          onClick={handleLogout}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-all w-full ${
-            collapsed ? "justify-center" : ""
-          }`}
-          title={collapsed ? "Logout" : undefined}
-        >
-          <LogOut size={18} />
-          {!collapsed && <span className="text-sm">Logout</span>}
-        </button>
-      </div>
-    </aside>
+        {/* Footer */}
+        <div className="p-3 border-t shrink-0 border-white/10">
+          {!collapsed || isMobile ? (
+            <>
+              <div className="flex items-center gap-3 px-2 py-2 mb-2 rounded-lg bg-white/5">
+                <div className="flex items-center justify-center text-sm font-bold rounded-full shrink-0 w-9 h-9 bg-amber text-navy">
+                  AR
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-white truncate">
+                    Ahmed Rahman
+                  </div>
+                  <div className="text-xs truncate text-white/50">
+                    Super Admin
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={handleLinkClick}
+                className="flex items-center w-full gap-3 px-3 py-2.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+              >
+                <LogOut size={18} className="shrink-0" />
+                <span className="text-sm">Logout</span>
+              </button>
+            </>
+          ) : (
+            <button className="flex justify-center w-full px-2 py-2.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+              <LogOut size={18} />
+            </button>
+          )}
+        </div>
+      </aside>
+    </>
   );
 }
