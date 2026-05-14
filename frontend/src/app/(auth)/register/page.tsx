@@ -1,17 +1,28 @@
 "use client";
 
-import { useAppDispatch } from "@/hooks/redux-hooks";
 import {
-    useRegisterMutation,
-    useResendOtpMutation,
-    useVerifyRegisterOtpMutation,
-} from "@/store/api/authApi";
-import { setCredentials } from "@/store/authSlice";
+  useRegisterMutation,
+  useResendOtpMutation,
+  useVerifyRegisterOtpMutation,
+} from "@/services/store/api/auth-api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AtSign, Eye, EyeOff, Lock, Mail } from "react-feather";
+import {
+  AlertCircle,
+  ArrowRight,
+  AtSign,
+  CheckCircle,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  User,
+} from "react-feather";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+
+// Role type define করুন
+type RoleType = "student" | "teacher" | "parent" | "admin" | "super_admin";
 
 interface RegisterForm {
   first_name: string;
@@ -22,17 +33,42 @@ interface RegisterForm {
   password2: string;
 }
 
-const roles = [
-  { value: "student", label: "Student", icon: "👨‍🎓" },
-  { value: "teacher", label: "Teacher", icon: "👨‍🏫" },
-  { value: "parent", label: "Parent", icon: "👨‍👩‍👧" },
-  { value: "admin", label: "Admin", icon: "🛡️" },
+const roles: {
+  value: RoleType;
+  label: string;
+  icon: string;
+  description: string;
+}[] = [
+  {
+    value: "student",
+    label: "Student",
+    icon: "👨‍🎓",
+    description: "Access to courses, attendance, results",
+  },
+  {
+    value: "teacher",
+    label: "Teacher",
+    icon: "👨‍🏫",
+    description: "Manage classes, marks, attendance",
+  },
+  {
+    value: "parent",
+    label: "Parent",
+    icon: "👨‍👩‍👧",
+    description: "Track child's progress",
+  },
+  {
+    value: "admin",
+    label: "Admin",
+    icon: "🛡️",
+    description: "Full system access",
+  },
 ];
 
 export default function RegisterPage() {
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const [selectedRole, setSelectedRole] = useState("student");
+  // ❌ dispatch দরকার নেই - কারণ setUser ব্যবহার করছি না
+  const [selectedRole, setSelectedRole] = useState<RoleType>("student");
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [registerEmail, setRegisterEmail] = useState("");
@@ -52,6 +88,7 @@ export default function RegisterPage() {
     handleSubmit,
     watch,
     formState: { errors },
+    setError,
   } = useForm<RegisterForm>();
 
   const password = watch("password1");
@@ -73,22 +110,45 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterForm) => {
     if (data.password1 !== data.password2) {
-      toast.error("Passwords do not match");
+      setError("password2", {
+        type: "manual",
+        message: "Passwords do not match",
+      });
       return;
     }
+
+    toast.loading("Creating your account...", { id: "registering" });
 
     try {
       const response = await registerUser({
         ...data,
-        role: selectedRole,
+        role: selectedRole, // ✅ এখন Type safe
       }).unwrap();
 
       setRegisterEmail(data.email);
       setShowOtpModal(true);
       startTimer();
-      toast.success("OTP sent to your email!");
+      toast.success("OTP sent to your email! Please verify.", {
+        id: "registering",
+      });
     } catch (error: any) {
-      toast.error(error.data?.message || "Registration failed");
+      const errorsFromServer = error.data;
+      if (errorsFromServer) {
+        Object.entries(errorsFromServer).forEach(([field, messages]) => {
+          setError(field as "username" | "email" | "password1" | "password2", {
+            type: "server",
+            message: Array.isArray(messages)
+              ? messages[0]
+              : (messages as string),
+          });
+        });
+      }
+      toast.error(
+        error.data?.message || "Registration failed. Please check the form.",
+        {
+          id: "registering",
+        },
+      );
     }
   };
 
@@ -99,31 +159,34 @@ export default function RegisterPage() {
       return;
     }
 
+    toast.loading("Verifying OTP...", { id: "verifying" });
+
     try {
       const response = await verifyOtp({
         email: registerEmail,
         otp: otpCode,
       }).unwrap();
 
-      if (response.user && response.access_token) {
-        dispatch(
-          setCredentials({
-            user: response.user,
-            accessToken: response.access_token,
-          }),
-        );
-        toast.success("Registration successful!");
-        router.push("/dashboard");
-      }
+      // ✅ শুধু রেজিস্টার কমপ্লিট - লগইন হয়নি, তাই setUser দরকার নেই
+      // ✅ কুকি এখনও সেট হয়নি (লগইন করলেই সেট হবে)
+
+      toast.success("Registration successful! Please login to continue.", {
+        id: "verifying",
+      });
+
+      // ✅ লগইন পেজে পাঠিয়ে দিন
+      router.push("/login");
     } catch (error: any) {
-      toast.error(error.data?.message || "Invalid OTP");
+      toast.error(error.data?.message || "Invalid OTP. Please try again.", {
+        id: "verifying",
+      });
     }
   };
 
   const handleResendOtp = async () => {
     try {
       await resendOtp({ email: registerEmail }).unwrap();
-      toast.success("OTP resent!");
+      toast.success("OTP resent successfully!");
       startTimer();
     } catch (error: any) {
       toast.error(error.data?.message || "Failed to resend OTP");
@@ -150,203 +213,303 @@ export default function RegisterPage() {
   };
 
   return (
-    <div>
-      <div className="mb-5">
-        <h1 className="text-[22px] font-bold text-navy">নতুন একাউন্ট</h1>
-        <p className="text-gray-500 text-sm mt-1">আপনার রোল সিলেক্ট করুন</p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        {roles.map((role) => (
-          <button
-            key={role.value}
-            type="button"
-            onClick={() => setSelectedRole(role.value)}
-            className={`flex items-center gap-2 p-3 border rounded-lg transition-all ${
-              selectedRole === role.value
-                ? "border-navy bg-amber-pale"
-                : "border-gray-300 hover:border-navy"
-            }`}
-          >
-            <span className="text-lg">{role.icon}</span>
-            <span className="text-sm font-medium text-navy">{role.label}</span>
-          </button>
-        ))}
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-2 gap-2.5 mb-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              First Name
-            </label>
-            <input
-              type="text"
-              {...register("first_name", {
-                required: "First name is required",
-              })}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-navy-light outline-none"
-              placeholder="আহমেদ"
-            />
-            {errors.first_name && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.first_name.message}
-              </p>
-            )}
+    <div className="min-h-screen py-12 bg-gray-50">
+      <div className="max-w-2xl px-4 mx-auto">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 mb-4 rounded-full shadow-md bg-amber-pale">
+            <span className="text-3xl">📚</span>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Last Name
-            </label>
-            <input
-              type="text"
-              {...register("last_name", { required: "Last name is required" })}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-navy-light outline-none"
-              placeholder="রহমান"
-            />
-            {errors.last_name && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.last_name.message}
-              </p>
-            )}
+          <h1 className="text-3xl font-bold text-navy">Create New Account</h1>
+          <p className="mt-2 text-gray-500">
+            Join EduNest and manage your school smarter
+          </p>
+        </div>
+
+        {/* Role Selection */}
+        <div className="mb-8">
+          <label className="block mb-3 text-sm font-semibold text-gray-700">
+            Select Your Role <span className="text-red-500">*</span>
+          </label>
+          <div className="grid grid-cols-2 gap-4">
+            {roles.map((role) => (
+              <button
+                key={role.value}
+                type="button"
+                onClick={() => setSelectedRole(role.value)}
+                className={`p-4 border-2 rounded-xl text-left transition-all ${
+                  selectedRole === role.value
+                    ? "border-amber bg-amber-pale shadow-md"
+                    : "border-gray-200 bg-white hover:border-amber hover:bg-amber-pale/30"
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">{role.icon}</span>
+                  <span className="font-semibold text-navy">{role.label}</span>
+                  {selectedRole === role.value && (
+                    <CheckCircle size={18} className="ml-auto text-amber" />
+                  )}
+                </div>
+                <p className="text-xs text-gray-500">{role.description}</p>
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="mb-3">
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Username
-          </label>
-          <div className="relative">
-            <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              {...register("username", { required: "Username is required" })}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-navy-light outline-none"
-              placeholder="ahmed.rahman"
-            />
-          </div>
-          {errors.username && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.username.message}
+        {/* Registration Form */}
+        <div className="p-6 bg-white border border-gray-100 shadow-sm rounded-xl">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">
+                  First Name <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <User
+                    size={18}
+                    className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2"
+                  />
+                  <input
+                    type="text"
+                    {...register("first_name", {
+                      required: "First name is required",
+                    })}
+                    className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 ${
+                      errors.first_name
+                        ? "border-red-500 focus:ring-red-200 bg-red-50"
+                        : "border-gray-200 focus:border-navy-light focus:ring-navy-light/20"
+                    }`}
+                    placeholder="Ahmed"
+                  />
+                </div>
+                {errors.first_name && (
+                  <p className="flex items-center gap-1 mt-1 text-xs text-red-500">
+                    <AlertCircle size={12} /> {errors.first_name.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">
+                  Last Name <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <User
+                    size={18}
+                    className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2"
+                  />
+                  <input
+                    type="text"
+                    {...register("last_name", {
+                      required: "Last name is required",
+                    })}
+                    className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 ${
+                      errors.last_name
+                        ? "border-red-500 focus:ring-red-200 bg-red-50"
+                        : "border-gray-200 focus:border-navy-light focus:ring-navy-light/20"
+                    }`}
+                    placeholder="Rahman"
+                  />
+                </div>
+                {errors.last_name && (
+                  <p className="flex items-center gap-1 mt-1 text-xs text-red-500">
+                    <AlertCircle size={12} /> {errors.last_name.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block mb-1 text-sm font-medium text-gray-700">
+                Username <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <AtSign
+                  size={18}
+                  className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2"
+                />
+                <input
+                  type="text"
+                  {...register("username", {
+                    required: "Username is required",
+                  })}
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.username
+                      ? "border-red-500 focus:ring-red-200 bg-red-50"
+                      : "border-gray-200 focus:border-navy-light focus:ring-navy-light/20"
+                  }`}
+                  placeholder="ahmed.rahman"
+                />
+              </div>
+              {errors.username && (
+                <p className="flex items-center gap-1 mt-1 text-xs text-red-500">
+                  <AlertCircle size={12} /> {errors.username.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-1 text-sm font-medium text-gray-700">
+                Email Address <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <Mail
+                  size={18}
+                  className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2"
+                />
+                <input
+                  type="email"
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Invalid email address",
+                    },
+                  })}
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.email
+                      ? "border-red-500 focus:ring-red-200 bg-red-50"
+                      : "border-gray-200 focus:border-navy-light focus:ring-navy-light/20"
+                  }`}
+                  placeholder="ahmed@school.edu"
+                />
+              </div>
+              {errors.email && (
+                <p className="flex items-center gap-1 mt-1 text-xs text-red-500">
+                  <AlertCircle size={12} /> {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Lock
+                    size={18}
+                    className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2"
+                  />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    {...register("password1", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 6,
+                        message: "Password must be at least 6 characters",
+                      },
+                    })}
+                    className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:border-navy-light focus:ring-navy-light/20"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute text-gray-400 -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {errors.password1 && (
+                  <p className="flex items-center gap-1 mt-1 text-xs text-red-500">
+                    <AlertCircle size={12} /> {errors.password1.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">
+                  Confirm Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Lock
+                    size={18}
+                    className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2"
+                  />
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    {...register("password2", {
+                      required: "Please confirm your password",
+                      validate: (value) =>
+                        value === password || "Passwords do not match",
+                    })}
+                    className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:border-navy-light focus:ring-navy-light/20"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute text-gray-400 -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+                </div>
+                {errors.password2 && (
+                  <p className="flex items-center gap-1 mt-1 text-xs text-red-500">
+                    <AlertCircle size={12} /> {errors.password2.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isRegisterLoading}
+              className="flex items-center justify-center w-full gap-2 py-3 mt-4 font-semibold text-white transition-all rounded-lg bg-navy hover:bg-navy-mid disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isRegisterLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  Create Account <ArrowRight size={18} />
+                </>
+              )}
+            </button>
+
+            <p className="pt-2 text-sm text-center text-gray-500">
+              Already have an account?{" "}
+              <button
+                type="button"
+                onClick={() => router.push("/login")}
+                className="font-semibold text-navy-light hover:underline"
+              >
+                Sign In Instead
+              </button>
             </p>
-          )}
+          </form>
         </div>
 
-        <div className="mb-3">
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Email
-          </label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="email"
-              {...register("email", { required: "Email is required" })}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-navy-light outline-none"
-              placeholder="ahmed@school.edu"
-            />
-          </div>
-          {errors.email && (
-            <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
-          )}
+        {/* Footer Copyright */}
+        <div className="mt-8 text-center">
+          <p className="text-xs text-gray-400">
+            Copyright © 2024 EduNest. All rights reserved.
+          </p>
         </div>
-
-        <div className="grid grid-cols-2 gap-2.5 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type={showPassword ? "text" : "password"}
-                {...register("password1", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
-                  },
-                })}
-                className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:border-navy-light outline-none"
-                placeholder="••••••••"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-            {errors.password1 && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.password1.message}
-              </p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Confirm
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                {...register("password2", {
-                  required: "Please confirm password",
-                  validate: (value) =>
-                    value === password || "Passwords do not match",
-                })}
-                className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:border-navy-light outline-none"
-                placeholder="••••••••"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-              >
-                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-            {errors.password2 && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.password2.message}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={isRegisterLoading}
-          className="w-full py-3.5 bg-navy text-white font-semibold rounded-lg hover:bg-navy-mid transition-colors disabled:opacity-50"
-        >
-          {isRegisterLoading ? "Creating account..." : "Register করুন →"}
-        </button>
-
-        <p className="text-center text-sm text-gray-500 mt-4">
-          আগেই একাউন্ট আছে?{" "}
-          <button
-            type="button"
-            onClick={() => router.push("/login")}
-            className="text-navy-light font-medium hover:underline"
-          >
-            Login করুন
-          </button>
-        </p>
-      </form>
+      </div>
 
       {/* OTP Modal */}
       {showOtpModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <div className="text-center mb-4">
-              <h3 className="text-xl font-bold text-navy">OTP যাচাই করুন</h3>
-              <p className="text-gray-500 text-sm mt-1">
-                {registerEmail} এ ৬ সংখ্যার কোড পাঠানো হয়েছে
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="w-full max-w-md p-6 bg-white shadow-2xl rounded-2xl">
+            <div className="mb-6 text-center">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-amber-pale">
+                <Mail size={32} className="text-amber" />
+              </div>
+              <h3 className="text-xl font-bold text-navy">Verify Your Email</h3>
+              <p className="mt-2 text-sm text-gray-500">
+                We've sent a 6-digit verification code to
+                <br />
+                <span className="font-medium text-navy">{registerEmail}</span>
               </p>
             </div>
 
-            <div className="flex gap-2 mb-4">
+            <div className="flex justify-center gap-2 mb-6">
               {otp.map((digit, index) => (
                 <input
                   key={index}
@@ -356,24 +519,24 @@ export default function RegisterPage() {
                   value={digit}
                   onChange={(e) => handleOtpChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="flex-1 h-12 text-center text-lg font-bold border border-gray-300 rounded-lg focus:border-amber outline-none"
+                  className="w-12 h-12 text-xl font-bold text-center border-2 border-gray-200 rounded-lg focus:border-amber focus:outline-none"
                 />
               ))}
             </div>
 
-            <p className="text-center text-sm text-gray-500 mb-4">
-              কোড পাননি?{" "}
+            <p className="mb-6 text-sm text-center text-gray-500">
+              Didn't receive the code?{" "}
               {canResend ? (
                 <button
                   onClick={handleResendOtp}
                   disabled={isResendLoading}
-                  className="text-amber font-semibold hover:underline disabled:opacity-50"
+                  className="font-semibold text-amber hover:underline disabled:opacity-50"
                 >
-                  {isResendLoading ? "Sending..." : "আবার পাঠান"}
+                  {isResendLoading ? "Sending..." : "Resend Code"}
                 </button>
               ) : (
-                <span className="text-amber font-semibold">
-                  00:{timer.toString().padStart(2, "0")}
+                <span className="font-semibold text-amber">
+                  Resend in 00:{timer.toString().padStart(2, "0")}
                 </span>
               )}
             </p>
@@ -381,16 +544,20 @@ export default function RegisterPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowOtpModal(false)}
-                className="flex-1 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+                className="flex-1 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleVerifyOtp}
                 disabled={isVerifyLoading}
-                className="flex-1 py-2.5 bg-amber text-navy font-semibold rounded-lg hover:bg-amber-light disabled:opacity-50"
+                className="flex-1 py-2.5 bg-amber text-navy font-semibold rounded-lg hover:bg-amber-light transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {isVerifyLoading ? "Verifying..." : "Verify & Register"}
+                {isVerifyLoading ? (
+                  <div className="w-5 h-5 border-2 rounded-full border-navy border-t-transparent animate-spin" />
+                ) : (
+                  "Verify & Continue"
+                )}
               </button>
             </div>
           </div>

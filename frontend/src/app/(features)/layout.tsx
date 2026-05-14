@@ -2,8 +2,7 @@
 
 import Sidebar from "@/components/dashboard/sidebar";
 import Topbar from "@/components/dashboard/topbar";
-import { useAppSelector } from "@/hooks/redux-hooks";
-import { selectIsAuthenticated } from "@/store/authSlice";
+// import { selectIsAuthenticated } from "@/store/authSlice";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -14,7 +13,7 @@ export default function DashboardLayout({
 }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  // const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const router = useRouter();
 
   // useEffect(() => {
