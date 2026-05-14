@@ -1,9 +1,9 @@
 "use client";
 
 import {
-    useForgotPasswordMutation,
-    useResetPasswordMutation,
-} from "@/store/api/authApi";
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+} from "@/services/store/api/auth-api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Eye, EyeOff, Lock, Mail } from "react-feather";
@@ -139,7 +139,7 @@ export default function ForgotPasswordPage() {
             <h1 className="text-[22px] font-bold text-navy">
               পাসওয়ার্ড রিসেট
             </h1>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="mt-1 text-sm text-gray-500">
               আপনার ইমেইল দিন, OTP পাঠানো হবে
             </p>
           </div>
@@ -150,16 +150,16 @@ export default function ForgotPasswordPage() {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Mail className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type="email"
                   {...registerEmail("email", { required: "Email is required" })}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-navy-light outline-none"
+                  className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg outline-none focus:border-navy-light"
                   placeholder="example@school.edu"
                 />
               </div>
               {emailErrors.email && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="mt-1 text-xs text-red-500">
                   {emailErrors.email.message}
                 </p>
               )}
@@ -173,7 +173,7 @@ export default function ForgotPasswordPage() {
               {isEmailLoading ? "Sending..." : "OTP পাঠান →"}
             </button>
 
-            <p className="text-center text-sm text-gray-500 mt-4">
+            <p className="mt-4 text-sm text-center text-gray-500">
               <button
                 type="button"
                 onClick={() => router.push("/login")}
@@ -191,7 +191,7 @@ export default function ForgotPasswordPage() {
         <div>
           <div className="mb-6">
             <h1 className="text-[22px] font-bold text-navy">OTP যাচাই করুন</h1>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="mt-1 text-sm text-gray-500">
               {email} এ ৬ সংখ্যার কোড পাঠানো হয়েছে
             </p>
           </div>
@@ -206,22 +206,22 @@ export default function ForgotPasswordPage() {
                 value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className="flex-1 h-14 text-center text-xl font-bold border border-gray-300 rounded-lg focus:border-amber outline-none"
+                className="flex-1 text-xl font-bold text-center border border-gray-300 rounded-lg outline-none h-14 focus:border-amber"
               />
             ))}
           </div>
 
-          <p className="text-center text-sm text-gray-500 mb-6">
+          <p className="mb-6 text-sm text-center text-gray-500">
             কোড পাননি?{" "}
             {canResend ? (
               <button
                 onClick={handleResend}
-                className="text-amber font-semibold hover:underline"
+                className="font-semibold text-amber hover:underline"
               >
                 আবার পাঠান
               </button>
             ) : (
-              <span className="text-amber font-semibold">
+              <span className="font-semibold text-amber">
                 00:{timer.toString().padStart(2, "0")}
               </span>
             )}
@@ -241,7 +241,7 @@ export default function ForgotPasswordPage() {
             যাচাই করুন →
           </button>
 
-          <p className="text-center text-sm text-gray-500 mt-4">
+          <p className="mt-4 text-sm text-center text-gray-500">
             <button
               onClick={() => setStep("email")}
               className="text-navy-light hover:underline"
@@ -257,7 +257,7 @@ export default function ForgotPasswordPage() {
         <div>
           <div className="mb-6">
             <h1 className="text-[22px] font-bold text-navy">নতুন পাসওয়ার্ড</h1>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="mt-1 text-sm text-gray-500">
               আপনার নতুন পাসওয়ার্ড সেট করুন
             </p>
           </div>
@@ -268,7 +268,7 @@ export default function ForgotPasswordPage() {
                 নতুন পাসওয়ার্ড
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Lock className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type={showPassword ? "text" : "password"}
                   {...registerReset("new_password", {
@@ -278,19 +278,19 @@ export default function ForgotPasswordPage() {
                       message: "Password must be at least 6 characters",
                     },
                   })}
-                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:border-navy-light outline-none"
+                  className="w-full py-3 pl-10 pr-10 border border-gray-300 rounded-lg outline-none focus:border-navy-light"
                   placeholder="নতুন পাসওয়ার্ড"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute text-gray-400 -translate-y-1/2 right-3 top-1/2"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               {resetErrors.new_password && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="mt-1 text-xs text-red-500">
                   {resetErrors.new_password.message}
                 </p>
               )}
@@ -301,7 +301,7 @@ export default function ForgotPasswordPage() {
                 পাসওয়ার্ড নিশ্চিত করুন
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Lock className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   {...registerReset("confirm_password", {
@@ -309,13 +309,13 @@ export default function ForgotPasswordPage() {
                     validate: (value) =>
                       value === newPassword || "Passwords do not match",
                   })}
-                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:border-navy-light outline-none"
+                  className="w-full py-3 pl-10 pr-10 border border-gray-300 rounded-lg outline-none focus:border-navy-light"
                   placeholder="পাসওয়ার্ড নিশ্চিত করুন"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute text-gray-400 -translate-y-1/2 right-3 top-1/2"
                 >
                   {showConfirmPassword ? (
                     <EyeOff size={18} />
@@ -325,7 +325,7 @@ export default function ForgotPasswordPage() {
                 </button>
               </div>
               {resetErrors.confirm_password && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="mt-1 text-xs text-red-500">
                   {resetErrors.confirm_password.message}
                 </p>
               )}
@@ -339,7 +339,7 @@ export default function ForgotPasswordPage() {
               {isResetLoading ? "Resetting..." : "পাসওয়ার্ড পরিবর্তন করুন ✓"}
             </button>
 
-            <p className="text-center text-sm text-gray-500 mt-4">
+            <p className="mt-4 text-sm text-center text-gray-500">
               <button
                 type="button"
                 onClick={() => router.push("/login")}
