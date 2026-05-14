@@ -124,7 +124,7 @@ export default function RegisterPage() {
         ...data,
         role: selectedRole, // ✅ এখন Type safe
       }).unwrap();
-
+      console.log("Response", response);
       setRegisterEmail(data.email);
       setShowOtpModal(true);
       startTimer();
@@ -132,6 +132,7 @@ export default function RegisterPage() {
         id: "registering",
       });
     } catch (error: any) {
+      console.log("Error", error);
       const errorsFromServer = error.data;
       if (errorsFromServer) {
         Object.entries(errorsFromServer).forEach(([field, messages]) => {

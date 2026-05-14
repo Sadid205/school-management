@@ -44,7 +44,6 @@ services:
     env_file:
       - ./.env.dev
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
     depends_on:
