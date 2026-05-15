@@ -15,26 +15,26 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
-class GetCsrfTokenView(APIView):
-    permission_classes = [AllowAny]
+# class GetCsrfTokenView(APIView):
+#     permission_classes = [AllowAny]
     
-    def get(self, request):
-        csrf_token = get_token(request)
+#     def get(self, request):
+#         csrf_token = get_token(request)
         
-        response = JsonResponse({
-            'csrfToken': csrf_token,
-            'message': 'CSRF token generated successfully'
-        })
+#         response = JsonResponse({
+#             'csrfToken': csrf_token,
+#             'message': 'CSRF token generated successfully'
+#         })
         
-        response.set_cookie(
-            'csrftoken',
-            csrf_token,
-            httponly=False,
-            samesite='Lax',
-            secure=False, 
-        )
+#         response.set_cookie(
+#             'csrftoken',
+#             csrf_token,
+#             httponly=False,
+#             samesite='Lax',
+#             secure=False, 
+#         )
         
-        return response
+#         return response
 
 
 class UserView(BaseView):

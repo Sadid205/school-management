@@ -31,14 +31,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
-# CORS settings
-CORS_ALLOW_CREDENTIALS = True 
 
-# 2. CSRF_TRUSTED_ORIGINS - কোন origin থেকে POST request এ CSRF token check করবে
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-]
 # 3. CORS_ALLOWED_ORIGINS - browser level এ কোন origin থেকে request আসতে পারবে
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",

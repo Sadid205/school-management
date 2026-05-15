@@ -6,7 +6,7 @@ app_name='accounts'
 
 
 urlpatterns = [
-    path('get-csrf-token', GetCsrfTokenView.as_view(), name='get-csrf-token'),
+    # path('get-csrf-token', GetCsrfTokenView.as_view(), name='get-csrf-token'),
     path('auth/register', RegisterView.as_view(),name='auth_register'),
     path('auth/register/otp/verify', VerifyRegisterOTPView.as_view(),name='register_otp_verify'),
     path('auth/login', LoginView.as_view(),name='otp_login'),
