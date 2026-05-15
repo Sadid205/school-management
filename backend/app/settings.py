@@ -30,7 +30,12 @@ DEBUG = True
 # 1. ALLOWED_HOSTS - সার্ভার level এ কোন host আসতে পারবে
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+CORS_ALLOW_CREDENTIALS = True 
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 
 # 3. CORS_ALLOWED_ORIGINS - browser level এ কোন origin থেকে request আসতে পারবে
 CORS_ALLOWED_ORIGINS = [
@@ -79,7 +84,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
      # Third-party apps
-     'corsheaders',
+    'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_spectacular',

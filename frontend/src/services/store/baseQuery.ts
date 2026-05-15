@@ -14,4 +14,17 @@ import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const rawBaseQuery = fetchBaseQuery({
   baseUrl: envVars.NEXT_PUBLIC_API_URL,
   credentials: "include",
+
+  prepareHeaders: (headers) => {
+    const csrfToken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("csrftoken="))
+      ?.split("=")[1];
+
+    if (csrfToken) {
+      headers.set("X-CSRFToken", csrfToken);
+    }
+
+    return headers;
+  },
 });

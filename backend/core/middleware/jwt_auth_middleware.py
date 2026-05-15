@@ -96,24 +96,24 @@ class JWTAuthenticationMiddleware:
     #   Main function
     def __call__(self,request):
 
+        # if request.method == "OPTIONS":
+        #     from django.http import JsonResponse
+            
+        #     response = JsonResponse({})
+        #     origin = request.headers.get('Origin', 'http://localhost:3000')
+            
+        #     response['Access-Control-Allow-Origin'] = origin
+            
+        #     response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+            
+        #     response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-CSRFToken'
+            
+        #     response['Access-Control-Allow-Credentials'] = 'true'
+            
+        #     return response
+
         if request.method == "OPTIONS":
-            from django.http import JsonResponse
-            
-            response = JsonResponse({})
-            origin = request.headers.get('Origin', 'http://localhost:3000')
-            
-            # পরিবর্তন ১: '*' এর বদলে specific origin
-            response['Access-Control-Allow-Origin'] = origin
-            
-            response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
-            
-            # পরিবর্তন ২: 'X-CSRFToken' header যোগ করুন (optional কিন্তু ভালো)
-            response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-CSRFToken'
-            
-            # পরিবর্তন ৩: এইটা সবচেয়ে গুরুত্বপূর্ণ!
-            response['Access-Control-Allow-Credentials'] = 'true'
-            
-            return response
+            return self.get_response(request) 
 
         path = request.path
 
