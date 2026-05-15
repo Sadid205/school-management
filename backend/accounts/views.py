@@ -8,6 +8,35 @@ from core.utils.generate_token import Token
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+
+#csrf token
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+
+class GetCsrfTokenView(APIView):
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        csrf_token = get_token(request)
+        
+        response = JsonResponse({
+            'csrfToken': csrf_token,
+            'message': 'CSRF token generated successfully'
+        })
+        
+        response.set_cookie(
+            'csrftoken',
+            csrf_token,
+            httponly=False,
+            samesite='Lax',
+            secure=False, 
+        )
+        
+        return response
+
+
 class UserView(BaseView):
     model = User
     create_serializer = UserCreateSerializer
@@ -73,7 +102,6 @@ class VerifyRegisterOTPView(BaseView):
         user = serializer.save()
         return self.send_response(data={"username":user.username,"email":user.email},message="OTP verified successfully.")
     
-
 
 class RegisterView(BaseView):
     model = VerificationCode

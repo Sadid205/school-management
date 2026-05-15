@@ -26,13 +26,20 @@ SECRET_KEY = 'django-insecure-7fu^)n$2!u2iuf_#5(4*3n26fzzy)ycr#j-d4spd@y^e(t$=%^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['http://localhost:3000','localhost']
+
+# 1. ALLOWED_HOSTS - সার্ভার level এ কোন host আসতে পারবে
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # CORS settings
 CORS_ALLOW_CREDENTIALS = True 
 
-# Specific origins (development এর জন্য)
+# 2. CSRF_TRUSTED_ORIGINS - কোন origin থেকে POST request এ CSRF token check করবে
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
+# 3. CORS_ALLOWED_ORIGINS - browser level এ কোন origin থেকে request আসতে পারবে
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
