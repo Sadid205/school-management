@@ -20,8 +20,9 @@ export function decodeToken(token: string): JWTPayload | null {
   }
 }
 
-export function isTokenValid(token: string): boolean {
-  const decoded = decodeToken(token);
+export function isTokenValid(token: string | null): boolean {
+  if (token === null) return false;
+  const decoded = decodeToken(token as string);
   if (!decoded) return false;
   //
 
