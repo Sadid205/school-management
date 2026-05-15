@@ -26,7 +26,45 @@ SECRET_KEY = 'django-insecure-7fu^)n$2!u2iuf_#5(4*3n26fzzy)ycr#j-d4spd@y^e(t$=%^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['http://localhost:3000','localhost']
+
+
+# CORS settings
+CORS_ALLOW_CREDENTIALS = True 
+
+# Specific origins (development এর জন্য)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# অথবা সব origin allow করতে চাইলে (development only):
+# CORS_ALLOW_ALL_ORIGINS = True  # কিন্তু credentials এর সাথে কাজ করবে না!
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+
+
 
 
 # Application definition
@@ -41,6 +79,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
      # Third-party apps
+     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_spectacular',
@@ -54,6 +93,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'core.middleware.jwt_auth_middleware.JWTAuthenticationMiddleware',  # Custom JWT auth middleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

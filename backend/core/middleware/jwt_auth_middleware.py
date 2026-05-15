@@ -97,8 +97,14 @@ class JWTAuthenticationMiddleware:
     def __call__(self,request):
 
         if request.method == "OPTIONS":
-            return self.get_response(request)
-        
+            from django.http import JsonResponse
+            
+            response = JsonResponse({})
+            response['Access-Control-Allow-Origin'] = '*'
+            response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+            response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+            return response
+
         path = request.path
 
         if self.path_match(path,EXCLUDED_PATHS):
